@@ -1,0 +1,57 @@
+services:
+  app:
+    image: ${SGR_APP_IMAGE:-ghcr.io/jimatdiablo/simple-guest-registration:latest}
+    container_name: ${SGR_APP_CONTAINER_NAME:-sgr_app}
+    restart: unless-stopped
+    ports:
+      - "${SGR_HTTP_BIND:-192.168.160.4:80}:80"
+    env_file:
+      - .env
+    volumes:
+      - sgr_app_storage:/var/www/html/storage
+    depends_on:
+      - db
+
+  scheduler:
+    image: ${SGR_APP_IMAGE:-ghcr.io/jimatdiablo/simple-guest-registration:latest}
+    container_name: ${SGR_SCHEDULER_CONTAINER_NAME:-sgr_scheduler}
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - sgr_app_storage:/var/www/html/storage
+    depends_on:
+      - db
+    command: ["/usr/local/bin/sgr-cron-entrypoint"]
+
+  dns:
+    image: ${SGR_DNS_IMAGE:-ghcr.io/jimatdiablo/simple-guest-registration-dns:latest}
+    container_name: ${SGR_DNS_CONTAINER_NAME:-sgr_dns}
+    restart: unless-stopped
+    environment:
+      POISON_DNS_TARGET_IP: ${POISON_DNS_TARGET_IP:-192.168.160.4}
+      POISON_DNS_UPSTREAM_SERVERS: ${POISON_DNS_UPSTREAM_SERVERS:-1.1.1.1,8.8.8.8}
+    ports:
+      - "${POISON_DNS_BIND_IP:-192.168.160.4}:53:53/udp"
+      - "${POISON_DNS_BIND_IP:-192.168.160.4}:53:53/tcp"
+
+  db:
+    image: mysql:8.0
+    container_name: ${SGR_DB_CONTAINER_NAME:-sgr_db}
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - sgr_db_data:/var/lib/mysql
+
+volumes:
+  sgr_db_data:
+    name: ${SGR_DB_VOLUME:-sgr_db_data}
+  sgr_app_storage:
+    name: ${SGR_APP_STORAGE_VOLUME:-sgr_app_storage}

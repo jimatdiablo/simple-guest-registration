@@ -1,0 +1,24 @@
+Configuration:
+Modem profile has default 10-100k/sec bootfile, lease time doesn't matter
+CPE profile has Poison DNS default, short lease (60 seconds)
+dnsmasq configured for poison dns in container (address=/#/192.168.160.199)
+
+Process:
+1. Modem boots and does DHCP, gets basic walled garden speeds
+2. CPE does DHCP gets short lease(60 seconds), poison dns(192.168.160.199)
+3. Customer goes to google.com . . . gets our signup page
+4. Customer signs up and submits their data
+5. Modem reservation added with bootfile containing selected speeds
+6. CPE reservation added with DNS override (public dns), longer lease time override
+7. Modem is rebooted
+8. Modem comes online with selected class of service
+9. CPE renews with actual DNS servers, longer lease time
+
+Caveats:
+Need to make sure customer can't use form to update other people's profiles(check CPE mac?)
+Smart users can manually change their DNS to public DNS servers and surf internet at slow speeds for free (very few people care about this or know how to do it)
+
+Dev work needed:
+Customer signup page (Jim)
+Gunslinger backend API (Jim)
+DDNet support for CPE lease time and dns overrides in reservations (Mark)

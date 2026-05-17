@@ -1,0 +1,96 @@
+Simple Guest Registration - Captive Portal RFC Implementation Plan
+==================================================================
+
+Purpose
+-------
+The SGR lab is acting as a captive portal for unregistered CPE devices.
+Trying to intercept arbitrary HTTPS traffic is not reliable because modern
+browsers enforce certificate and HSTS protections. The recommended approach is
+to advertise the portal using the standard captive portal mechanisms.
+
+
+Recommended Approach
+--------------------
+Use DHCP to advertise an SGR captive portal API endpoint with RFC 8910 DHCP
+Option 114, and have SGR serve an RFC 8908 Captive Portal API response.
+
+The DHCP server should advertise:
+
+  Option 114: http://192.168.160.4/api/captive-portal
+
+The SGR application should serve:
+
+  GET http://192.168.160.4/api/captive-portal
+
+
+Captive API Response
+--------------------
+While the CPE/guest is still captive, the API should return JSON like:
+
+  {
+    "captive": true,
+    "user-portal-url": "http://192.168.160.4/",
+    "venue-info-url": "http://192.168.160.4/"
+  }
+
+After the guest is registered and no longer captive, the API can return:
+
+  {
+    "captive": false
+  }
+
+
+Expected Client Flow
+--------------------
+1. The CPE receives DHCP.
+2. DHCP includes Option 114 pointing to the SGR captive portal API.
+3. The client operating system detects that this network has a captive portal.
+4. The client requests the SGR captive portal API.
+5. The API tells the client where the user-facing portal is.
+6. The OS opens the registration page without relying on HTTPS interception.
+
+
+Why Not HTTPS Interception
+--------------------------
+Listening on port 443 with a self-signed certificate was tested and is not a
+dependable guest experience. Some browsers will not allow the user to continue,
+especially when the original hostname is HSTS-protected or the certificate name
+does not match the requested hostname.
+
+The RFC 8910 / RFC 8908 approach avoids that problem by telling the client
+about the portal explicitly.
+
+
+Recommended SGR Lab Configuration
+---------------------------------
+Keep these pieces in place:
+
+  - Poison DNS for unregistered clients, resolving names to 192.168.160.4
+  - SGR web app listening on HTTP port 80
+  - DHCP Option 114 pointing to http://192.168.160.4/api/captive-portal
+  - SGR endpoint /api/captive-portal returning RFC 8908 JSON
+
+Do not rely on:
+
+  - Arbitrary HTTPS interception
+  - Self-signed certificates for random browser destinations
+  - Users manually bypassing browser security warnings
+
+
+Implementation Notes
+--------------------
+For the first lab version, SGR can return "captive": true unconditionally.
+Later, it can decide true or false based on the requesting CPE, modem MAC, or
+registration status.
+
+Because operating system support varies, keep the HTTP poison DNS fallback and
+a simple manual instruction available:
+
+  If the page does not open automatically, type:
+  http://192.168.160.4/
+
+
+References
+----------
+RFC 8910 - Captive-Portal Identification in DHCP and Router Advertisements
+RFC 8908 - Captive Portal API

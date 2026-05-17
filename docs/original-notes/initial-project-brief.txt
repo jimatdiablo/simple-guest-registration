@@ -1,0 +1,43 @@
+Lets start a new PHP Server project called "Simple Guest Registration". This project will require a new docker container and our working files should be placed in a new subfolder under this workspace. We want this app and container to be reusable so we can deploy multiple instances for unique service groups. 
+
+This will be a light-weight PHP server application that uses a local mysql database.
+
+The app will need a local mysql table called 'guests' to store guest registration records. 
+
+The app will need another local table called 'modems' for cable modem records that we will use for location information. 
+
+We will use the same structure used by a table on a different LAMP server called 'Gunslinger' for the local 'modems' table. 
+
+The Gunslinger server mysql database table called userAccounts.customers contains the records used for our source of truth for refreshing the local modems table. 
+
+The userAccounts.customers records have a column called 'sg' that identifies the service group that cable modems are associated to. There may be more than one service group for a given production deployment.
+
+We are only interested in records for service group '10' during testing. We should keep the service group number(s) in a local configuration that is editable.
+
+I will provide an SQL export file to use to create the initial 'modems' table contents for testing.
+
+We will need to refresh the local 'modems' table from the Gunslinger userAccounts.customers table each time a user visits the landing page of this app, using a REST API that we need to create for this purpose. This will ensure we have the most current modem and location information in the app. 
+
+For the production release we will change to a different service group or service group set. I can provide a SQL table at that time to replace the modems table information. We know the first deployment of this server will have to support 2 service groups. A CMTS system is considered a service group.
+
+The landing page will be titled 'Guest Registration'. 
+
+The app landing page will present the viewer with a simple form with fields for their name, their phone number, the lot number from a dropdown list derived from the 'modems' table column called 'unit', a current date field with a selector that is automatically set to the current date titled 'Arrival Date', and a date field with a selector titled 'Departure Date'. 
+
+When they submit the completed form the app will do the following:
+
+Add a local db record for the guest to a local mysql database table that stores all the form information submitted. 
+
+Make a REST API call to Gunslinger to update the column called userAccounts.customers.profile in the Gunslinger userAccounts.customers record for this specific locations' cable modem to a default service profile value stored in our app local configuration. for testing this default service profile will be "10baseservice". This update will keep our sorce of truth up to date when a guest checks in.
+
+We need to create another simple REST API to call on the Gunslinger server to do the userAccounts.customers.profile update. We must limit the update to one record, where the userAccounts.customers.sg column matches the service group in the app config, and the userAccounts.customers.unit column matches the lot number drop-down selection. 
+
+We will make another REST API call to a different server called DDNet to look up the DHCP lease using the mac address in the modems table associated to the lot number from the form submission. 
+
+The REST API already exists on DDNet to get the DHCP lease information using the mac address for the call. I will have to give you that API information.
+
+Using the returned IP address from DDNet this app will make an SNMP SET call to the cable modem IP address, sending the DOCSIS Cable Labs reboot command. 
+
+We will need some reports to show the registration history, the length of stay and perhaps other trend data. 
+
+Tell me your understanding of this story for the app, and what additional information you require to get started on a protptype.

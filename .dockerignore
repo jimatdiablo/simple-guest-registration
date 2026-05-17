@@ -1,0 +1,12 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+data/
+restorepoints/
+db/init/015_customers_seed.sql
+app/storage/logs/*
+*.zip
+*.log
+*.tmp

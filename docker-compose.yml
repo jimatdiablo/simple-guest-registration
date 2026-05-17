@@ -1,0 +1,77 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sgr_app
+    ports:
+      - "8088:80"
+      - "${POISON_DNS_BIND_IP:-192.168.160.4}:80:80"
+    env_file:
+      - .env
+    volumes:
+      - ./app:/var/www/html
+    depends_on:
+      - db
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sgr_scheduler
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./app:/var/www/html
+    depends_on:
+      - db
+    command: ["/usr/local/bin/sgr-cron-entrypoint"]
+
+  dns:
+    build:
+      context: .
+      dockerfile: docker/dnsmasq/Dockerfile
+    container_name: sgr_dns
+    restart: unless-stopped
+    environment:
+      POISON_DNS_TARGET_IP: ${POISON_DNS_TARGET_IP:-192.168.160.4}
+      POISON_DNS_UPSTREAM_SERVERS: ${POISON_DNS_UPSTREAM_SERVERS:-1.1.1.1,8.8.8.8}
+    ports:
+      - "${POISON_DNS_BIND_IP:-192.168.160.4}:53:53/udp"
+      - "${POISON_DNS_BIND_IP:-192.168.160.4}:53:53/tcp"
+
+  db:
+    image: mysql:8.0
+    container_name: sgr_db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "33306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: sgr_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "8089:80"
+
+volumes:
+  db_data:

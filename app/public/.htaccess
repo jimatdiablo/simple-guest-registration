@@ -1,0 +1,11 @@
+RewriteEngine On
+RewriteRule ^api/captive-portal/?$ index.php?action=captive_portal_api [L,QSA]
+RewriteRule ^canonical\.html$ index.php?action=captive_probe&probe=firefox [L,QSA]
+RewriteRule ^connecttest\.txt$ index.php?action=captive_probe&probe=windows [L,QSA]
+RewriteRule ^ncsi\.txt$ index.php?action=captive_probe&probe=windows_ncsi [L,QSA]
+RewriteRule ^success\.txt$ index.php?action=captive_probe&probe=success [L,QSA]
+RewriteRule ^hotspot-detect\.html$ index.php?action=captive_probe&probe=apple [L,QSA]
+RewriteRule ^library/test/success\.html$ index.php?action=captive_probe&probe=apple_success [L,QSA]
+RewriteRule ^generate_204$ index.php?action=captive_probe&probe=android [L,QSA]
+RewriteRule ^gen_204$ index.php?action=captive_probe&probe=android_alt [L,QSA]
+RewriteRule ^wpad\.dat$ index.php?action=captive_probe&probe=wpad [L,QSA]

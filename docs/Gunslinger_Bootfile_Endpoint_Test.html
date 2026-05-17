@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gunslinger Bootfile Endpoint Test</title>
+  <style>
+    body {
+      font-family: Segoe UI, Tahoma, sans-serif;
+      margin: 24px;
+      line-height: 1.4;
+      color: #1a1a1a;
+    }
+    .card {
+      max-width: 760px;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      padding: 16px;
+      background: #fafafa;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      margin-top: 6px;
+      border: 1px solid #bdbdbd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 14px;
+      font-size: 14px;
+      border: 1px solid #666;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    .note {
+      margin-top: 14px;
+      padding: 10px;
+      background: #fff7e6;
+      border: 1px solid #efd19c;
+      border-radius: 4px;
+    }
+    code {
+      background: #f0f0f0;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gunslinger Bootfile Endpoint Test</h1>
+  <div class="card">
+    <p>Click Submit. Your browser should prompt for Gunslinger Basic Auth. Enter the same credentials used by your other two Gunslinger endpoints.</p>
+
+    <form method="post" action="http://192.168.160.3/getprofilebootfiles.php" target="_blank">
+      <label for="service_groups">service_groups</label>
+      <input id="service_groups" name="service_groups" value="10,11" />
+
+      <label for="profile_names">profile_names (optional)</label>
+      <input id="profile_names" name="profile_names" value="10baseservice,11baseservice" />
+
+      <button type="submit">Submit Test Request</button>
+    </form>
+
+    <div class="note">
+      <strong>Expected:</strong> JSON response with <code>ok: true</code> and <code>data</code> rows containing <code>sg</code>, <code>profile_name</code>, and <code>bootfile_filename</code>.
+    </div>
+  </div>
+</body>
+</html>

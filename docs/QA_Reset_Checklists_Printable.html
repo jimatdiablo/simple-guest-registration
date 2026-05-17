@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QA Reset Test Checklists</title>
+  <style>
+    :root {
+      --text: #111;
+      --muted: #555;
+      --line: #222;
+    }
+
+    @page {
+      size: Letter;
+      margin: 0.6in;
+    }
+
+    body {
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 12pt;
+      line-height: 1.35;
+      margin: 0;
+      background: #fff;
+    }
+
+    h1, h2 {
+      margin: 0 0 8px;
+    }
+
+    h1 {
+      font-size: 20pt;
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 6px;
+    }
+
+    h2 {
+      font-size: 14pt;
+      margin-top: 18px;
+      border-bottom: 1px solid #999;
+      padding-bottom: 4px;
+    }
+
+    p, li {
+      margin: 4px 0;
+    }
+
+    ul, ol {
+      margin: 6px 0 8px 18px;
+      padding: 0;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 18px;
+      margin: 10px 0 12px;
+    }
+
+    .field {
+      border-bottom: 1px solid #444;
+      min-height: 20px;
+      padding-bottom: 2px;
+    }
+
+    .check {
+      margin-right: 8px;
+    }
+
+    .line {
+      border-bottom: 1px solid #444;
+      height: 20px;
+      margin: 6px 0;
+    }
+
+    .step {
+      margin: 10px 0;
+      page-break-inside: avoid;
+    }
+
+    .expected {
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .footer-gap {
+      height: 16px;
+    }
+
+    @media print {
+      .no-print {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>QA Reset Test Checklists</h1>
+
+  <div class="meta">
+    <div>Date: <span class="field"></span></div>
+    <div>Tester: <span class="field"></span></div>
+    <div>Environment: <span class="field"></span></div>
+    <div>Build/Commit: <span class="field"></span></div>
+  </div>
+
+  <h2>Pre-Checks</h2>
+  <ul>
+    <li><span class="check">[ ]</span>I can log in with at least one master admin account.</li>
+    <li><span class="check">[ ]</span>I have at least one non-master-admin account available for validation.</li>
+    <li><span class="check">[ ]</span>There is sample guest data present (or I created a few records).</li>
+    <li><span class="check">[ ]</span>There is modem/lot cache data present before testing.</li>
+    <li><span class="check">[ ]</span>Service group settings are known and documented for this environment.</li>
+  </ul>
+  <div class="line"></div>
+  <div class="line"></div>
+
+  <h2>Test A: Clear All Registrations</h2>
+
+  <div class="step">
+    <p>1. Open Admin > Deployment Tools.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>2. Click Clear All Registrations and verify confirmation appears.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>3. Click Cancel on confirmation once.</p>
+    <p class="expected">Expected: No data is cleared; cancel message appears.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>4. Run Clear All Registrations again and click Proceed.</p>
+    <p class="expected">Expected: Success message indicates registrations, modem cache, and related logs/queues were cleared; backup summary appears.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>5. Verify post-reset prompt appears asking whether service group settings are configured and offering resync.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>6. Validate immediate app state after Clear All.</p>
+    <p class="expected">Expected: Admin login works, guest list is empty/reset, and related logs/queues are cleared.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>7. Click Yes, Resync Modems and Lots Now.</p>
+    <p class="expected">Expected: Modem/lot cache repopulates successfully for configured service groups.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>8. Try a new guest registration flow after resync.</p>
+    <p class="expected">Expected: Lot/modem lookup works; registration can proceed normally.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <h2>Test B: Full Factory Reset</h2>
+
+  <div class="step">
+    <p>1. Open Admin > Deployment Tools and click Full Factory Reset.</p>
+    <p class="expected">Expected: Separate confirmation appears for factory reset.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>2. Click Cancel once first.</p>
+    <p class="expected">Expected: No reset performed; cancel message appears.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>3. Run Full Factory Reset and click Proceed Full Factory Reset.</p>
+    <p class="expected">Expected: Success message states data/settings/non-master-admin users were reset and master admin users were preserved.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>4. Verify master admin preservation.</p>
+    <p class="expected">Expected: Master admin can still log in.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>5. Verify non-master-admin user reset behavior.</p>
+    <p class="expected">Expected: Non-master-admin users are removed/reset per design.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>6. Verify factory reset data scope.</p>
+    <p class="expected">Expected: Registrations, modem cache, related logs/queues, and app settings are reset.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>7. Verify post-factory-reset service group prompt and run resync.</p>
+    <p class="expected">Expected: Prompt appears; resync repopulates modem/lot cache.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <div class="step">
+    <p>8. Validate core smoke flow after factory reset and resync.</p>
+    <p class="expected">Expected: Master admin login works, admin pages load without errors, and guest registration works with lot/modem lookup.</p>
+    <p><span class="check">[ ]</span>Pass</p>
+    <p>Notes: ________________________________</p>
+  </div>
+
+  <h2>Backup and Recovery Spot Check</h2>
+  <ul>
+    <li><span class="check">[ ]</span>Backup table names were shown in success messaging when source tables had rows.</li>
+    <li><span class="check">[ ]</span>At least one backup table was spot-verified in DB (optional but recommended).</li>
+  </ul>
+
+  <h2>Defect Log</h2>
+  <p>Defect ID: ____________________</p>
+  <p>Step: ____________________</p>
+  <p>Expected: ________________________________________</p>
+  <p>Actual: __________________________________________</p>
+  <p>Severity: ____________________</p>
+  <p>Screenshots/Links: ________________________________</p>
+
+  <h2>Final Sign-Off</h2>
+  <p>Overall Result: [ ] Pass   [ ] Pass with minor issues   [ ] Fail</p>
+  <p>QA Summary:</p>
+  <div class="line"></div>
+  <div class="line"></div>
+  <p>Approved By: ____________________</p>
+  <p>Date: ____________________</p>
+
+  <div class="footer-gap"></div>
+</body>
+</html>

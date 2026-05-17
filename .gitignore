@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+
+data/
+restorepoints/
+docs/jims-private-notes.txt
+app/storage/logs/*
+!app/storage/logs/.gitkeep
+
+db/init/015_customers_seed.sql
+
+*.zip
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
