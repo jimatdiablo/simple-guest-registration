@@ -81,7 +81,7 @@ jobs:
             VERSION=${{ env.VERSION }}
 
       - name: Scan app image
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: sgr-publish-app-scan:local
           format: table
@@ -103,7 +103,7 @@ jobs:
             VERSION=${{ env.VERSION }}
 
       - name: Scan DNS image
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: sgr-publish-dns-scan:local
           format: table
