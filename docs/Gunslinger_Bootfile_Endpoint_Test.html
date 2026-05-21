@@ -58,9 +58,16 @@
 <body>
   <h1>Gunslinger Bootfile Endpoint Test</h1>
   <div class="card">
+    <div class="note">
+      <strong>Lab-only utility:</strong> the default endpoint is from the SGR lab network. Replace it before using this page in another environment.
+    </div>
+
     <p>Click Submit. Your browser should prompt for Gunslinger Basic Auth. Enter the same credentials used by your other two Gunslinger endpoints.</p>
 
-    <form method="post" action="http://192.168.160.3/getprofilebootfiles.php" target="_blank">
+    <form id="bootfile-test-form" method="post" action="http://192.168.160.3/getprofilebootfiles.php" target="_blank">
+      <label for="endpoint_url">endpoint_url</label>
+      <input id="endpoint_url" name="endpoint_url" value="http://192.168.160.3/getprofilebootfiles.php" />
+
       <label for="service_groups">service_groups</label>
       <input id="service_groups" name="service_groups" value="10,11" />
 
@@ -74,5 +81,17 @@
       <strong>Expected:</strong> JSON response with <code>ok: true</code> and <code>data</code> rows containing <code>sg</code>, <code>profile_name</code>, and <code>bootfile_filename</code>.
     </div>
   </div>
+  <script>
+    document.getElementById('bootfile-test-form').addEventListener('submit', function (event) {
+      var endpoint = document.getElementById('endpoint_url').value.trim();
+      if (!endpoint) {
+        event.preventDefault();
+        alert('Enter an endpoint URL before submitting.');
+        return;
+      }
+
+      this.action = endpoint;
+    });
+  </script>
 </body>
 </html>

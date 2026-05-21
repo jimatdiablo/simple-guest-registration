@@ -1,6 +1,9 @@
 Simple Guest Registration - Captive Portal RFC Implementation Plan
 ==================================================================
 
+Lab note: addresses in the 192.168.160.0/24 range are SGR test-environment
+examples. Replace them before using this plan for another site.
+
 Purpose
 -------
 The SGR lab is acting as a captive portal for unregistered CPE devices.

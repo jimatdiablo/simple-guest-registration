@@ -16,6 +16,7 @@ env:
   REGISTRY: ghcr.io
   APP_IMAGE_NAME: ${{ github.repository }}
   DNS_IMAGE_NAME: ${{ github.repository }}-dns
+  VERSION: ${{ github.ref_name }}
 
 jobs:
   publish:
@@ -26,6 +27,9 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Set build metadata
+        run: echo "BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -41,7 +45,11 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.APP_IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=main,enable={{is_default_branch}}
             type=ref,event=tag
+            type=semver,pattern={{major}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
             type=sha,prefix=sha-
 
       - name: DNS image metadata
@@ -51,8 +59,56 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.DNS_IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=main,enable={{is_default_branch}}
             type=ref,event=tag
+            type=semver,pattern={{major}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
             type=sha,prefix=sha-
+
+      - name: Build app image for scan
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: sgr-publish-app-scan:local
+          labels: ${{ steps.app-meta.outputs.labels }}
+          build-args: |
+            BUILD_DATE=${{ env.BUILD_DATE }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ env.VERSION }}
+
+      - name: Scan app image
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          image-ref: sgr-publish-app-scan:local
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: "0"
+
+      - name: Build DNS image for scan
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/dnsmasq/Dockerfile
+          push: false
+          load: true
+          tags: sgr-publish-dns-scan:local
+          labels: ${{ steps.dns-meta.outputs.labels }}
+          build-args: |
+            BUILD_DATE=${{ env.BUILD_DATE }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ env.VERSION }}
+
+      - name: Scan DNS image
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          image-ref: sgr-publish-dns-scan:local
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: "0"
 
       - name: Build and publish app image
         uses: docker/build-push-action@v6
@@ -62,6 +118,10 @@ jobs:
           push: true
           tags: ${{ steps.app-meta.outputs.tags }}
           labels: ${{ steps.app-meta.outputs.labels }}
+          build-args: |
+            BUILD_DATE=${{ env.BUILD_DATE }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ env.VERSION }}
 
       - name: Build and publish DNS image
         uses: docker/build-push-action@v6
@@ -71,3 +131,7 @@ jobs:
           push: true
           tags: ${{ steps.dns-meta.outputs.tags }}
           labels: ${{ steps.dns-meta.outputs.labels }}
+          build-args: |
+            BUILD_DATE=${{ env.BUILD_DATE }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ env.VERSION }}

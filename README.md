@@ -2,6 +2,10 @@
 
 Reusable PHP + MySQL prototype for guest check-in, modem lookup, DHCP lease lookup, and modem reboot workflow.
 
+## Repository status
+
+This repository is currently public and source-available for authorized project collaboration, deployment review, and operational transparency. It is not open source. See `LICENSE` before copying, modifying, hosting, or redistributing the software.
+
 ## What this prototype includes
 
 - Landing page titled Guest Registration
@@ -43,19 +47,31 @@ Tagged and `main` branch pushes publish images to GitHub Container Registry:
 
 ```text
 ghcr.io/jimatdiablo/simple-guest-registration:latest
+ghcr.io/jimatdiablo/simple-guest-registration:main
 ghcr.io/jimatdiablo/simple-guest-registration-dns:latest
+ghcr.io/jimatdiablo/simple-guest-registration-dns:main
 ```
 
 Version tags use the same tag name:
 
 ```text
 ghcr.io/jimatdiablo/simple-guest-registration:v1.0.0
+ghcr.io/jimatdiablo/simple-guest-registration:1.0.0
+ghcr.io/jimatdiablo/simple-guest-registration:1.0
+ghcr.io/jimatdiablo/simple-guest-registration:1
 ghcr.io/jimatdiablo/simple-guest-registration-dns:v1.0.0
+ghcr.io/jimatdiablo/simple-guest-registration-dns:1.0.0
+ghcr.io/jimatdiablo/simple-guest-registration-dns:1.0
+ghcr.io/jimatdiablo/simple-guest-registration-dns:1
 ```
 
-The production deployment template is `docker-compose.prod.yml`. It uses persistent named volumes for MySQL data and app storage/logs so normal image updates do not destroy deployment data.
+Each published image also receives an immutable `sha-*` tag. Production deployments should prefer a version tag or SHA tag rather than `latest` so rollback remains predictable.
+
+The production deployment template is `docker-compose.prod.yml`. It uses persistent named volumes for MySQL data and app storage/logs so normal image updates do not destroy deployment data. The app image includes an HTTP healthcheck against `/?action=health`; the DNS image includes a process healthcheck for `dnsmasq`.
 
 ## Quick start
+
+The defaults in this README are lab-oriented examples from the current SGR test environment. Before production deployment, replace lab IPs, credentials, service groups, and endpoint URLs in `.env` with site-specific values.
 
 1. In this folder, copy .env.example to .env.
 2. Add your SQL export to db/init as 015_customers_seed.sql.
@@ -103,7 +119,7 @@ docker compose logs -f scheduler
 
 ## Integration config
 
-Set these in .env:
+Set these in .env. Values shown here are examples; the `192.168.160.0/24` addresses are lab placeholders, not public defaults:
 
 - SERVICE_GROUPS=10,11
 - DEFAULT_SERVICE_PROFILE=10baseservice

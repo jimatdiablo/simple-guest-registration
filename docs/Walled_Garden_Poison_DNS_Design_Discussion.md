@@ -1,5 +1,7 @@
 # Walled Garden Poison DNS Design Discussion
 
+Addresses in the `192.168.160.0/24` range are SGR lab examples. Replace them with site-specific values before deployment.
+
 ## Purpose
 
 Simple Guest Registration is intended to operate as a walled garden registration app. An unregistered guest should be guided to the registration page automatically, without needing to know the app URL or call staff for instructions.

@@ -2,6 +2,8 @@
 
 Use this checklist when preparing a Simple Guest Registration container deployment for a new customer or site.
 
+Examples that use `192.168.160.0/24` are lab placeholders from the SGR test environment. Replace them with the target site's addressing before deployment.
+
 This is a planning checklist for customer-unique values. It is not a full installation guide.
 
 ## Application Identity

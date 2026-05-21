@@ -56,6 +56,18 @@ $isPropertyUser = in_array($userRole, ['staff', 'admin', 'master_admin'], true);
 $isAdmin = in_array($userRole, ['admin', 'master_admin'], true);
 $isMasterAdmin = $userRole === 'master_admin';
 
+if ($action === 'health') {
+  header('Content-Type: application/json');
+  header('Cache-Control: no-store, no-cache, must-revalidate');
+  echo json_encode([
+    'ok' => true,
+    'app' => $config->get('APP_NAME', 'Simple Guest Registration'),
+    'version' => $config->get('APP_VERSION', 'dev'),
+    'time' => date(DATE_ATOM),
+  ], JSON_UNESCAPED_SLASHES);
+  exit;
+}
+
 if ($action === 'logout') {
   $_SESSION = [];
   session_destroy();

@@ -1,5 +1,7 @@
 # Simple Guest Registration Deployment Intake
 
+This file captures lab and deployment planning values. It may contain private network addresses, placeholder credentials, and environment-specific endpoint examples. Do not treat completed copies as public documentation.
+
 Fill this file and send it back when ready. Leave unknown fields as `TBD`.
 
 ## 1. Environment
