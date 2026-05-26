@@ -25,6 +25,17 @@ Do not delete these unless you intentionally want to destroy that deployment's d
 7. Pull and restart the deployed containers.
 8. Verify the app and data.
 
+## Parked Update - 2026-05-22
+
+The Active Guests status display was fixed after QA showed staff-approved departure extensions still appearing as `Submitted`.
+
+Pending release work:
+
+1. Commit and push the SGR code/docs update.
+2. Rebuild the SGR app container image.
+3. Publish or deploy the updated image to the target environment.
+4. Retest guest extension approval and confirm Active Guests shows `Extension Approved`.
+
 ## Local Code Change Commands
 
 Check what changed:

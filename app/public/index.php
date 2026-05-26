@@ -629,6 +629,26 @@ function renderSubmissionStatusText(string $status, bool $guestFacing = false): 
   };
 }
 
+function renderActiveGuestStatusText(array $row): string
+{
+  $requestType = (string) ($row['latest_approved_request_type'] ?? '');
+  $requestStatus = (string) ($row['latest_approved_request_status'] ?? '');
+
+  if (in_array($requestStatus, ['approved', 'auto_approved'], true)) {
+    return match ($requestType) {
+      'extend_departure' => $requestStatus === 'auto_approved' ? 'Extension Auto-Approved' : 'Extension Approved',
+      'early_checkout' => $requestStatus === 'auto_approved' ? 'Checkout Auto-Approved' : 'Checkout Approved',
+      default => $requestStatus === 'auto_approved' ? 'Auto-Approved' : 'Approved',
+    };
+  }
+
+  if ((string) ($row['submission_status'] ?? '') === 'submitted') {
+    return 'Active';
+  }
+
+  return renderSubmissionStatusText((string) ($row['submission_status'] ?? ''));
+}
+
 function submissionStatusClass(string $status): string
 {
   $normalized = trim($status);
@@ -637,6 +657,16 @@ function submissionStatusClass(string $status): string
     'checked_out' => 'status-chip status-chip-muted',
     default => 'status-chip status-chip-normal',
   };
+}
+
+function activeGuestStatusClass(array $row): string
+{
+  $requestStatus = (string) ($row['latest_approved_request_status'] ?? '');
+  if (in_array($requestStatus, ['approved', 'auto_approved'], true)) {
+    return 'status-chip status-chip-success';
+  }
+
+  return submissionStatusClass((string) ($row['submission_status'] ?? ''));
 }
 
 function renderNetworkIdentityCell(string $ip, string $mac): string
@@ -3293,7 +3323,7 @@ $versionLabel = implode(' · ', $versionParts);
                 <td data-sort-value="<?php echo htmlspecialchars((string) $row['departure_date']); ?>"><?php echo htmlspecialchars($row['departure_date']); ?></td>
                 <td><?php echo (int) $row['stay_days']; ?></td>
                 <td><?php echo renderNetworkIdentityCell((string) ($row['dhcp_ip'] ?? ''), (string) ($row['modem_mac'] ?? '')); ?></td>
-                <td><span class="<?php echo htmlspecialchars(submissionStatusClass((string) ($row['submission_status'] ?? ''))); ?>"><?php echo htmlspecialchars(renderSubmissionStatusText((string) ($row['submission_status'] ?? ''))); ?></span></td>
+                <td><span class="<?php echo htmlspecialchars(activeGuestStatusClass((array) $row)); ?>"><?php echo htmlspecialchars(renderActiveGuestStatusText((array) $row)); ?></span></td>
                 <td><?php echo renderActiveGuestNotesCell((array) $row); ?></td>
                 <td><?php echo htmlspecialchars($row['created_at']); ?></td>
                 <td>
@@ -3393,7 +3423,7 @@ $versionLabel = implode(' · ', $versionParts);
                 <td data-sort-value="<?php echo htmlspecialchars((string) $row['arrival_date']); ?>"><?php echo htmlspecialchars($row['arrival_date']); ?></td>
                 <td data-sort-value="<?php echo htmlspecialchars((string) $row['departure_date']); ?>"><?php echo htmlspecialchars($row['departure_date']); ?></td>
                 <td><?php echo (int) $row['stay_days']; ?></td>
-                <td><span class="<?php echo htmlspecialchars(submissionStatusClass((string) ($row['submission_status'] ?? ''))); ?>"><?php echo htmlspecialchars(renderSubmissionStatusText((string) ($row['submission_status'] ?? ''))); ?></span></td>
+                <td><span class="<?php echo htmlspecialchars(activeGuestStatusClass((array) $row)); ?>"><?php echo htmlspecialchars(renderActiveGuestStatusText((array) $row)); ?></span></td>
                 <td><?php echo htmlspecialchars((string) ($row['notes'] ?? '')); ?></td>
                 <td><?php echo htmlspecialchars($row['created_at']); ?></td>
                 <td>

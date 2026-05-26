@@ -1405,6 +1405,12 @@ button {
   color: #44515b;
 }
 
+.status-chip-success {
+  background: #e3f6ee;
+  border-color: #4aa27c;
+  color: #0d5a3f;
+}
+
 .status-chip-alert {
   background: #fde8e8;
   border-color: #c76464;

@@ -587,6 +587,22 @@ class GuestRepository
     {
         $stmt = $this->pdo->prepare(
             "SELECT id, guest_name, phone, unit, sg, modem_mac, arrival_date, departure_date, profile_applied, dhcp_ip, submission_status, notes, created_at,
+                    (
+                        SELECT r.request_type
+                        FROM guest_self_service_requests r
+                        WHERE r.guest_id = guests.id
+                          AND r.status IN ('approved', 'auto_approved')
+                        ORDER BY COALESCE(r.decided_at, r.created_at) DESC, r.id DESC
+                        LIMIT 1
+                    ) AS latest_approved_request_type,
+                    (
+                        SELECT r.status
+                        FROM guest_self_service_requests r
+                        WHERE r.guest_id = guests.id
+                          AND r.status IN ('approved', 'auto_approved')
+                        ORDER BY COALESCE(r.decided_at, r.created_at) DESC, r.id DESC
+                        LIMIT 1
+                    ) AS latest_approved_request_status,
                     DATEDIFF(departure_date, arrival_date) + 1 AS stay_days
              FROM guests
                          WHERE submission_status <> 'checked_out'

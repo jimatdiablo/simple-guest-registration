@@ -233,4 +233,14 @@ Guest Change Requests scale/readability enhancements are now active:
 - Deployment operations are documented in `docs/Deployment_Handbook.md` and `docs/App_Update_And_Container_Maintenance_Cheat_Sheet.md`.
 - Restore point created after this update: `restorepoints/SimpleGuestService_2026-05-16_190623.zip`.
 
+### Maintenance update (2026-05-22)
+
+- QA found that after a guest requested a departure extension and staff approved it, Active Guests still showed the original provisioning status as `Submitted`.
+- Active Guests now combines the reservation provisioning status with the latest approved or auto-approved guest self-service request. Normal active rows show `Active`; approved extension rows show `Extension Approved`; auto-approved extension rows show `Extension Auto-Approved`.
+- Added a success status-chip style for approved guest-change states.
+- Verified against the lab row for `Jim Clark / Lot B2 / SG 11`, where the reservation departure date is `2026-05-24` and the related request is `extend_departure / approved`.
+- Validation passed with PHP syntax checks for `app/public/index.php` and `app/src/GuestRepository.php`, plus the container health endpoint.
+- Restore point created after this update: `restorepoints/SimpleGuestService_2026-05-22_100101.zip`.
+- Parked follow-up: commit and push this update to the repository, then rebuild and publish/deploy the SGR container image.
+
 Implementation details are tracked in `GUEST_SELF_SERVICE_PHASE1.md` under the Phase 2 plan section.

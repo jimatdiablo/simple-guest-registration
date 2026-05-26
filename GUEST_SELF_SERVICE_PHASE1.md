@@ -336,3 +336,26 @@ Implemented:
 2. Add code regeneration workflow for staff/admin.
 3. Add improved queue filters and SLA highlighting.
 4. Add downloadable/printable guest access receipt.
+
+## QA Maintenance Note - 2026-05-22
+
+Staff approval of a guest departure extension correctly updated the reservation date and marked the self-service request approved, but Active Guests still displayed the original provisioning status as `Submitted`.
+
+Resolution:
+- Active Guests now displays reservation-facing state from both `guests.submission_status` and the latest approved or auto-approved `guest_self_service_requests` row.
+- Normal active reservations display `Active`.
+- Approved extension requests display `Extension Approved`.
+- Auto-approved extension requests display `Extension Auto-Approved`.
+- Approved checkout requests display `Checkout Approved`.
+
+Validation:
+- Confirmed the lab row `Jim Clark / Lot B2 / SG 11` has departure date `2026-05-24` and request state `extend_departure / approved`.
+- Ran PHP syntax checks for `app/public/index.php` and `app/src/GuestRepository.php`.
+- Confirmed the SGR container health endpoint returns OK.
+
+Restore point:
+- `restorepoints/SimpleGuestService_2026-05-22_100101.zip`
+
+Parked follow-up:
+- Commit and push this update to the repository.
+- Rebuild and publish/deploy the SGR container image so deployed environments receive the Active Guests status fix.
