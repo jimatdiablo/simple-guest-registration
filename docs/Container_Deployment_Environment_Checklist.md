@@ -66,6 +66,25 @@ These may live in `docker-compose.yml` or a customer-specific Compose override.
 - `MYSQL_ROOT_PASSWORD`
   - MySQL root password. Must be customer-unique.
 
+- `SGR_RUN_MIGRATIONS`
+  - Leave set to `true` for normal deployments.
+  - Set to `false` only for emergency/manual migration control.
+
+## Database Initialization
+
+- `db/init`
+  - Optional first-start SQL imports are mounted into MySQL by `docker-compose.prod.yml`.
+  - MySQL only executes these files when the DB volume is empty.
+
+- `app/migrations`
+  - Runs on every app and scheduler container start.
+  - Creates or updates SGR-owned tables.
+  - Tracks applied versions in `schema_migrations`.
+
+- `015_customers_seed.sql`
+  - Optional customer export filename for first-start customer/modem seed data.
+  - `020_seed_modems_from_customers.sql` mirrors loaded customers into `modems` after the export loads.
+
 ## Service Groups and Profiles
 
 - `SERVICE_GROUPS`
@@ -207,3 +226,4 @@ If bundled Poison DNS is added later, expect customer-specific values such as:
 - The actual reachable IP/URL must be changed before customer testing.
 - Docker port bindings or host networking determine where the app listens.
 - `APP_URL` should describe how users reach the app; it does not assign an IP to the container by itself.
+- Check app and scheduler logs for `migrations complete` before marking bring-up done.

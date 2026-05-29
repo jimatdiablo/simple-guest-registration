@@ -23,18 +23,19 @@ Do not delete these unless you intentionally want to destroy that deployment's d
 5. GitHub Actions builds and publishes a new container image.
 6. Update the deployed instance to use the new image.
 7. Pull and restart the deployed containers.
-8. Verify the app and data.
+8. Confirm startup migrations completed.
+9. Verify the app and data.
 
-## Parked Update - 2026-05-22
+## Current Release - 2026-05-29
 
-The Active Guests status display was fixed after QA showed staff-approved departure extensions still appearing as `Submitted`.
+Current tagged release:
 
-Pending release work:
+```env
+SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:v1.0.0
+SGR_DNS_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration-dns:v1.0.0
+```
 
-1. Commit and push the SGR code/docs update.
-2. Rebuild the SGR app container image.
-3. Publish or deploy the updated image to the target environment.
-4. Retest guest extension approval and confirm Active Guests shows `Extension Approved`.
+This release adds startup database migrations. App and scheduler containers run `app/bin/migrate.php` before Apache or cron starts. Applied versions are tracked in `schema_migrations`.
 
 ## Local Code Change Commands
 
@@ -79,8 +80,8 @@ This pulls the new image and recreates the app containers while keeping volumes.
 Edit the site `.env`:
 
 ```env
-SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:v1.0.4
-SGR_DNS_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration-dns:v1.0.4
+SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:v1.0.0
+SGR_DNS_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration-dns:v1.0.0
 ```
 
 Then run:
@@ -106,6 +107,13 @@ docker compose -f docker-compose.prod.yml logs --tail=100 scheduler
 docker compose -f docker-compose.prod.yml logs --tail=100 dns
 ```
 
+Confirm migrations ran:
+
+```powershell
+docker compose -f docker-compose.prod.yml logs --tail=100 app | Select-String "migrations complete"
+docker compose -f docker-compose.prod.yml logs --tail=100 scheduler | Select-String "migrations complete"
+```
+
 Open the app:
 
 ```text
@@ -120,6 +128,7 @@ Verify:
 - Logs/storage are still present.
 - DNS/captive portal behavior still works.
 - Scheduler is running.
+- `schema_migrations` contains the expected release migration rows.
 
 ## Commands That Preserve Data
 
@@ -165,7 +174,7 @@ Before a bigger change, make or confirm a backup of:
 At minimum, record the current image tag:
 
 ```env
-SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:v1.0.3
+SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:v1.0.0
 ```
 
 That gives you a known rollback target.
@@ -177,7 +186,7 @@ If the new image has a problem and the old image is still available:
 1. Edit the site `.env` back to the previous image tag.
 
 ```env
-SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:v1.0.3
+SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:v1.0.0
 ```
 
 2. Pull and restart:

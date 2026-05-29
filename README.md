@@ -122,6 +122,19 @@ docker compose logs -f scheduler
 - 002_seed_modems_from_customers.sql is a compatibility placeholder.
 - 020_seed_modems_from_customers.sql copies from customers to modems if your SQL export created customers.
 
+## Current release
+
+`v1.0.0` is the first tagged deployment release with startup database migrations.
+
+Use versioned images for controlled deployments:
+
+```text
+ghcr.io/jimatdiablo/simple-guest-registration:v1.0.0
+ghcr.io/jimatdiablo/simple-guest-registration-dns:v1.0.0
+```
+
+On container start, both the app and scheduler run migrations before serving traffic or starting cron. Migrations are idempotent and tracked in the `schema_migrations` table, so normal redeploys skip already-applied versions.
+
 ## Integration config
 
 Set these in .env. Values shown here are examples; the `192.168.160.0/24` addresses are lab placeholders, not public defaults:
@@ -247,5 +260,15 @@ Guest Change Requests scale/readability enhancements are now active:
 - Validation passed with PHP syntax checks for `app/public/index.php` and `app/src/GuestRepository.php`, plus the container health endpoint.
 - Restore point created after this update: `restorepoints/SimpleGuestService_2026-05-22_100101.zip`.
 - Parked follow-up: commit and push this update to the repository, then rebuild and publish/deploy the SGR container image.
+
+### Release update (2026-05-29)
+
+- Tagged and published `v1.0.0`.
+- Added idempotent startup migrations under `app/migrations`, with `schema_migrations` tracking.
+- App and scheduler containers now run `app/bin/migrate.php` before Apache or cron starts.
+- Production compose now mounts `db/init` for first-start SQL imports and keeps persistent DB/storage volumes.
+- Scheduler healthcheck now checks the cron process instead of using the app HTTP healthcheck.
+- Moved customers-to-modems first-start copy to `020_seed_modems_from_customers.sql` so optional `015_customers_seed.sql` imports load first.
+- Verified GitHub Actions CI and GHCR publish succeeded for `main` and `v1.0.0`.
 
 Implementation details are tracked in `GUEST_SELF_SERVICE_PHASE1.md` under the Phase 2 plan section.

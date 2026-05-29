@@ -76,16 +76,18 @@ Use `docker-compose.prod.yml` for production-style deployments. It uses publishe
 The current image variables are:
 
 ```env
-SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:latest
-SGR_DNS_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration-dns:latest
+SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:v1.0.0
+SGR_DNS_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration-dns:v1.0.0
 ```
 
 For stricter production change control, prefer a versioned tag instead of `latest`, for example:
 
 ```env
-SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:v1.0.3
-SGR_DNS_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration-dns:v1.0.3
+SGR_APP_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration:v1.0.0
+SGR_DNS_IMAGE=ghcr.io/jimatdiablo/simple-guest-registration-dns:v1.0.0
 ```
+
+The app image runs database migrations on startup unless `SGR_RUN_MIGRATIONS=false` is set. Leave migrations enabled for normal deployments.
 
 ## Initial Deployment Workflow
 
@@ -123,7 +125,30 @@ docker compose -f docker-compose.prod.yml up -d
     - DNS listens on `assigned-ip:53` UDP and TCP.
     - Captive portal endpoint responds at `http://assigned-ip/api/captive-portal`.
     - The scheduler container is running.
+    - App or scheduler logs show `migrations complete`.
+    - The database contains a `schema_migrations` table.
     - The database volume and app storage volume were created with the expected unique names.
+
+## Database Migrations and Seeds
+
+SGR has two database setup paths:
+
+- MySQL first-start SQL files in `db/init`.
+- App startup migrations in `app/migrations`.
+
+The MySQL init files only run when the MySQL data directory is empty. They are useful for first deployment and optional customer seed imports such as `015_customers_seed.sql`.
+
+Startup migrations run every time the app or scheduler container starts. They create or update SGR-owned tables, insert default settings only when missing, seed configured master-admin accounts, and record applied migration versions in `schema_migrations`.
+
+Normal deployment behavior:
+
+1. MySQL starts and preserves or initializes its data volume.
+2. The app container waits for DB connectivity.
+3. `app/bin/migrate.php` applies missing migrations.
+4. Apache starts.
+5. The scheduler runs the same migration check before starting cron.
+
+Do not set `SGR_RUN_MIGRATIONS=false` during normal deployments. Use it only for emergency manual intervention when you intentionally want containers to start without running migrations.
 
 ## DHCP and Captive Portal Configuration
 
@@ -156,7 +181,8 @@ The source-of-truth flow is:
 4. GitHub Actions builds and publishes a new GHCR image.
 5. The Pod Manager updates the selected deployment to the new image tag.
 6. The Pod Manager recreates the app and scheduler containers while preserving volumes and `.env`.
-7. Staff verifies the app after restart.
+7. Startup migrations run automatically and skip versions already present in `schema_migrations`.
+8. Staff verifies the app after restart.
 
 Manual production update command pattern:
 
@@ -233,5 +259,7 @@ Before marking a deployment live:
 - DB credentials are customer-unique.
 - `SGR_DB_VOLUME` and `SGR_APP_STORAGE_VOLUME` are customer-unique.
 - `master_admin` access has been verified.
+- Startup migration logs show success.
+- `schema_migrations` has the expected release migration rows.
 - A normal app restart does not lose data.
 - A test image update preserves reservations, settings, and logs.
