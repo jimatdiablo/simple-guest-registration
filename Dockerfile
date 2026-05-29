@@ -19,7 +19,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY docker/scheduler/cron-entrypoint.sh /usr/local/bin/sgr-cron-entrypoint
-RUN chmod +x /usr/local/bin/sgr-cron-entrypoint
+COPY docker/app-entrypoint.sh /usr/local/bin/sgr-app-entrypoint
+RUN chmod +x /usr/local/bin/sgr-cron-entrypoint /usr/local/bin/sgr-app-entrypoint
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
@@ -32,6 +33,9 @@ WORKDIR /var/www/html
 COPY app/ /var/www/html/
 RUN mkdir -p /var/www/html/storage/logs \
     && chown -R www-data:www-data /var/www/html/storage
+
+ENTRYPOINT ["sgr-app-entrypoint"]
+CMD ["apache2-foreground"]
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD curl -fsS "http://127.0.0.1/?action=health" || exit 1

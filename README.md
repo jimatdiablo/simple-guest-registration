@@ -39,7 +39,8 @@ This repository is currently public and source-available for authorized project 
 - app/public/index.php: UI, form submission, local API endpoints
 - app/src: config, DB, repositories, service clients
 - app/bin/auto_checkout.php: CLI entry point for scheduled auto-checkout runs
-- db/init: schema and optional SQL seed transforms
+- app/migrations: idempotent startup migrations for deployed databases
+- db/init: optional first-start SQL imports and seed transforms
 
 ## Container Images
 
@@ -114,8 +115,12 @@ docker compose logs -f scheduler
 ## Data seed notes
 
 - On first DB startup, MySQL executes files in db/init in filename order.
-- 001_schema.sql creates guests and modems.
-- 002_seed_modems_from_customers.sql copies from customers to modems if your SQL export created customers.
+- The app and scheduler run `app/bin/migrate.php` on container startup unless `SGR_RUN_MIGRATIONS=false`.
+- `app/migrations` creates or updates the SGR-owned tables and records applied versions in `schema_migrations`.
+- Default app settings and master admin seed users are inserted if missing.
+- 001_schema.sql is retained for MySQL first-start compatibility.
+- 002_seed_modems_from_customers.sql is a compatibility placeholder.
+- 020_seed_modems_from_customers.sql copies from customers to modems if your SQL export created customers.
 
 ## Integration config
 

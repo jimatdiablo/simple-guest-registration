@@ -23,6 +23,12 @@ services:
     depends_on:
       - db
     command: ["/usr/local/bin/sgr-cron-entrypoint"]
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep cron >/dev/null"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
 
   dns:
     image: ${SGR_DNS_IMAGE:-ghcr.io/jimatdiablo/simple-guest-registration-dns:latest}
@@ -49,6 +55,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - sgr_db_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
 
 volumes:
   sgr_db_data:

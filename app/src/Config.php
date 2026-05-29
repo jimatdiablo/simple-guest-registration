@@ -15,6 +15,7 @@ class Config
             'APP_NAME', 'APP_TITLE', 'APP_URL', 'APP_TIMEZONE',
             'APP_VERSION', 'APP_BUILD_DATE', 'APP_IMAGE_TAG',
             'DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD',
+            'SGR_MASTER_ADMIN_SEEDS',
             'SERVICE_GROUPS', 'DEFAULT_SERVICE_PROFILE',
             'MODEM_EXCLUDED_UNIT_VALUES',
             'ADMIN_ACCESS_KEY',
